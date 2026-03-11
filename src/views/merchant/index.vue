@@ -18,15 +18,10 @@
     </div>
   </div>
   <div class="card">
-    <el-table
-      :data="list"
-      class="audit-table"
-      row-key="id"
-      :header-cell-style="headerCellStyle"
-    >
+    <el-table :data="list" class="audit-table" row-key="id" :header-cell-style="headerCellStyle">
       <el-table-column prop="merchantId" label="商户ID" width="100">
         <template #default="scope">
-          <el-link type="primary">{{ scope.row.merchantId }}</el-link>
+          <span style="font-weight: 700;color: var(--brand-blue-dark);">{{ scope.row.merchantId }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="name" label="主理人">
@@ -78,28 +73,44 @@
         :page-sizes="[10, 20, 50]" size="default" :background="false" layout="total, sizes, prev, pager, next, jumper"
         :total="total" @size-change="handleSizeChange" @current-change="handleCurrentChange" />
     </div>
-    <el-dialog
-      v-model="showAddMerchant"
-      title="Warning"
-      width="500"
-      align-center
-    >
-      <span>Open the dialog from the center from the screen</span>
+    <el-dialog v-model="showAddMerchant" title="新增商户" width="520" align-center>
+      <div class="form-group">
+        <label>商户类型 <span style="color:var(--error-color);">*</span></label>
+        <el-select
+          id="newPartnerType"
+          v-model="type"
+          placeholder="请选择商户类型"
+          clearable
+        >
+          <el-option
+            v-for="item in option"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </div>
+      <div class="form-group" style="margin-top: 20px;">
+        <label>录入手机号码 <span style="color:var(--error-color);">*</span></label>
+        <textarea
+          id="newPartnerPhones"
+          class="form-control"
+          style="height: 120px; resize: none;"
+          v-model="phoneNumbers"
+          placeholder="请输入手机号码，支持批量录入，多个号码请用逗号或换行分隔"
+        ></textarea>
+        <div style="font-size: 12px; color: var(--text-tertiary); margin-top: 8px;">系统将自动为这些手机号开通商户后台登录权限。</div>
+      </div>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="centerDialogVisible = false">Cancel</el-button>
-          <el-button type="primary" @click="centerDialogVisible = false">
-            Confirm
-          </el-button>
+          <button class="btn btn-secondary" @click="handleCancelAdd">取消</button>
+          <button class="btn btn-primary" @click="handleConfirmAdd">
+            确认添加
+          </button>
         </div>
       </template>
     </el-dialog>
-    <el-dialog
-      v-model="show"
-      title="操作确认"
-      width="480"
-      align-center
-    >
+    <el-dialog v-model="show" title="操作确认" width="480" align-center>
       <div class="risk-panel" style="margin-bottom: 0;">
         <div class="risk-title">⚠️ 风险操作提示</div>
         <div class="risk-desc">
@@ -108,10 +119,7 @@
       </div>
       <template #footer>
         <div class="dialog-footer">
-          <button class="btn btn-secondary btn-sm"
-            style="margin-right: 12px;"
-            @click="handleCancel"
-          >
+          <button class="btn btn-secondary btn-sm" style="margin-right: 12px;" @click="handleCancel">
             取消
           </button>
           <button class="btn btn-danger-soft btn-sm" @click="handleChangeStatus(scope.row)">
@@ -125,6 +133,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import {
   queryMerchantList,
   updateMerchantStatus,
@@ -142,6 +151,19 @@ const list = ref([]);
 const show = ref(false);
 const showAddMerchant = ref(false);
 const rowItem = ref({});
+const type = ref(null);
+const phoneNumbers = ref('');
+const flag = ref(true);
+const option = [
+  {
+    value: '0',
+    label: '终端用户 (980元/年)',
+  },
+  {
+    value: '1',
+    label: '经销商 (1.98万元/年)',
+  }
+]
 
 const options = ref(
   [
@@ -222,32 +244,55 @@ const handleSearch = () => {
 }
 
 const handleAddMerchant = () => {
-  batchAddMerchant({
-    type: 0,
-    phoneNumbers: '13111111111,13311111111'
-  })
-    .then(res => {
-      console.log('res', res);
-      onLoadData();
-    })
+  showAddMerchant.value = true;
 }
 
 const desensitizePhoneNumber = (phoneNumber) => {
   if (typeof phoneNumber !== 'string') {
     phoneNumber = String(phoneNumber);
   }
-  
+
   // 验证是否为11位手机号格式
   if (!/^\d{11}$/.test(phoneNumber)) {
     return phoneNumber; // 如果不是标准手机号，返回原值
   }
-  
+
   // 保留前3位和后4位，中间4位用*替换
   return phoneNumber.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
 }
 
 const handleCancel = () => {
   show.value = false;
+}
+
+const handleCancelAdd = () => {
+  showAddMerchant.value = false;
+  type.value = null;
+  phoneNumbers.value = '';
+}
+
+const handleConfirmAdd = () => {
+  if (!type.value) {
+    ElMessage.error('请选择商户类型');
+    return;
+  }
+  if (!phoneNumbers.value) {
+    ElMessage.error('请输入手机号码');
+    return;
+  }
+  if (flag.value) {
+    flag.value = false;
+    batchAddMerchant({
+      type: type.value,
+      phoneNumbers: phoneNumbers.value
+    }).then(res => {
+      console.log('res', res);
+      onLoadData();
+      flag.value = true;
+    }).catch(err => {
+      flag.value = true;
+    })
+  }
 }
 </script>
 
@@ -439,145 +484,181 @@ const handleCancel = () => {
 .dialog-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 .img {
   height: 200px;
   width: auto;
 }
+
 .filter-panel {
-    padding: 32px 48px 28px;
+  padding: 32px 48px 28px;
 }
 
 .filter-form {
-    display: grid;
-    grid-template-columns: 344px 208px 208px 1fr;
-    gap: 0 32px;
-    align-items: end;
+  display: grid;
+  grid-template-columns: 344px 208px 208px 1fr;
+  gap: 0 32px;
+  align-items: end;
 }
 
 .filter-item {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 .filter-action {
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-end;
-    height: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  height: 100%;
 }
 
 .query-btn {
-    width: 220px;
-    height: 76px;
-    border-radius: 20px;
-    border: none;
-    background: linear-gradient(135deg, #3b82f6, #10b981);
-    font-size: 16px;
-    font-weight: 700;
-    color: #fff;
+  width: 220px;
+  height: 76px;
+  border-radius: 20px;
+  border: none;
+  background: linear-gradient(135deg, #3b82f6, #10b981);
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
 }
 
 .query-btn:hover,
 .query-btn:focus {
-    background: linear-gradient(135deg, #2563eb, #059669);
-    color: #fff;
+  background: linear-gradient(135deg, #2563eb, #059669);
+  color: #fff;
 }
 
 .query-btn-icon {
-    margin-right: 8px;
-    font-size: 18px;
-    line-height: 1;
+  margin-right: 8px;
+  font-size: 18px;
+  line-height: 1;
 }
-@media (max-width: 1400px) {
-    .filter-form {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        row-gap: 16px;
-    }
 
-    .filter-action {
-        grid-column: 1 / -1;
-        justify-content: flex-start;
-    }
+@media (max-width: 1400px) {
+  .filter-form {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 16px;
+  }
+
+  .filter-action {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 900px) {
-    .filter-panel {
-        padding: 20px;
-    }
+  .filter-panel {
+    padding: 20px;
+  }
 
-    .filter-form {
-        grid-template-columns: 1fr;
-    }
+  .filter-form {
+    grid-template-columns: 1fr;
+  }
 
-    .query-btn {
-        width: 100%;
-        height: 52px;
-        border-radius: 14px;
-    }
+  .query-btn {
+    width: 100%;
+    height: 52px;
+    border-radius: 14px;
+  }
 }
+
 .filter-panel {
-    display: flex;
-    gap: 16px;
-    align-items: flex-end;
-    padding: 18px 24px;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    margin-bottom: 24px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  padding: 18px 24px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
 }
+
 .filter-item label {
-    font-size: 11px;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+  display: block;
+}
+
+:deep(.filter-item .el-input__wrapper) {
+  padding: 0;
+  border-radius: 10px;
+
+}
+
+:deep(.filter-item .el-select__wrapper) {
+  padding: 0;
+  border-radius: 10px;
+  height: 38px;
+  // border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 14px;
+  transition: all var(--transition-fast);
+}
+
+:deep(.filter-item .el-input__inner) {
+  height: 38px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 14px;
+  transition: all var(--transition-fast);
+}
+
+.risk-panel {
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #fee2e2;
+  background: rgba(239, 68, 68, 0.06);
+  margin-bottom: 16px;
+}
+
+.risk-title {
+  font-weight: 800;
+  color: var(--error-text);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.risk-desc {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    font-size: 12px;
     color: var(--text-tertiary);
     font-weight: 700;
+    margin-bottom: 8px;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 6px;
-    display: block;
 }
-:deep(.filter-item .el-input__wrapper) {
-    padding: 0;
+.form-control {
+    width: 100%;
+    padding: 0 14px;
     border-radius: 10px;
-    
-}
-:deep(.filter-item .el-select__wrapper){
-    padding: 0;
-    border-radius: 10px;
-    height: 38px;
-    // border: 1.5px solid var(--border-color);
-    border-radius: 10px;
-    padding: 0 12px;
-    font-size: 14px;
-    transition: all var(--transition-fast);
-}
-:deep(.filter-item .el-input__inner) {
-    height: 38px;
     border: 1.5px solid var(--border-color);
-    border-radius: 10px;
-    padding: 0 12px;
-    font-size: 14px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
     transition: all var(--transition-fast);
 }
-.risk-panel {
-    padding: 16px;
-    border-radius: 14px;
-    border: 1px solid #fee2e2;
-    background: rgba(239, 68, 68, 0.06);
-    margin-bottom: 16px;
-}
-.risk-title {
-    font-weight: 800;
-    color: var(--error-text);
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.risk-desc {
-    color: var(--text-secondary);
-    font-size: 13px;
-    line-height: 1.5;
+:deep(.el-dialog) {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  border-radius: 24px;
 }
 </style>

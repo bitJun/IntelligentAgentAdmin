@@ -29,8 +29,12 @@
 </template>
 <script setup>
 import { ref, onMounted } from 'vue';
-import { loginByUsername } from '@service/login';
+import { loginByUsername, getUserInfo } from '@service/login';
+import { setToken } from '@/utils/auth'
+import { useStore } from '@/store/user';
 import { useRouter } from 'vue-router';
+
+const store = useStore();
 const username = ref('');
 const password = ref('');
 const router = useRouter();
@@ -42,9 +46,16 @@ const handleLogin = () => {
     }
     loginByUsername(params)
         .then(res => {
-            console.log('res', res);
             localStorage.setItem('token', res.token);
-            router.push('/');
+            setToken(res.token);
+            getUserInfo(res.token).then(res => {
+                console.log('res', res);
+                store.setName(res.name);
+                store.setPerms(res.perms);
+                store.setRoles(res.roles);
+                router.push('/');
+            })
+            
         })
         .catch(err => {
             console.log('err', err);

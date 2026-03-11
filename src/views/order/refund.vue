@@ -82,9 +82,11 @@
                 label="操作"
             >
                 <template #default="scope">
-                    <el-button type="text" @click="handleRefundDetail(scope.row)">
-                        详情
-                    </el-button>
+                    <button class="btn btn-secondary btn-sm"
+                        style="padding: 0 12px; height: 30px; display: inline-flex; align-items: center; gap: 4px; border-radius: 8px;"
+                        @click="handleRefundDetail(scope.row)">
+                        管理详情
+                    </button>
                 </template>
             </el-table-column>
         </el-table>

@@ -19,6 +19,9 @@
             <el-table-column prop="phone" label="手机号">
             </el-table-column>
             <el-table-column prop="role" label="系统角色">
+                <template #default="scope">
+                    {{roleInfo[scope.row.roleIds[0]]}}
+                </template>
             </el-table-column>
             <el-table-column prop="addTime" label="创建时间">
             </el-table-column>
@@ -90,7 +93,10 @@
 import { ref, onMounted, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { listAdmin } from '@/service/admin';
-import { listLog } from '@/service/log'
+import { listLog } from '@/service/log';
+import {
+    listRole
+} from '@/service/role';
 const router = useRouter();
 const params = ref({
     pageNum: 1,
@@ -119,6 +125,23 @@ const headerCellStyle = {
     color: '#91a0b9',
     fontWeight: 600,
     height: '50px',
+}
+
+const roleInfo = ref({});
+
+const getRoleList = () => {
+    const params = {
+        page: 1,
+        limit: 20,
+        name: undefined,
+        sort: 'add_time',
+        order: 'desc'
+    }
+    listRole(params).then(res => {
+        res.list.forEach(item => {
+            roleInfo.value[item.id] = item.name;
+        });
+    })
 }
 
 const onLoadData = () => {
@@ -167,6 +190,7 @@ const handlePermission = (row) => {
 }
 
 onMounted(() => {
+    getRoleList();
     onLoadData();
     onLoadLogList();
 });

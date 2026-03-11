@@ -46,7 +46,11 @@
             <el-table-column
                 prop="orderNo"
                 label="订单号"
-            ></el-table-column>
+            >
+                <template #default="scope">
+                    <span style="font-weight: 700;color: var(--brand-blue-dark);">{{ scope.row.orderNo }}</span>
+                </template>
+            </el-table-column>
             <el-table-column
                 prop="payTime"
                 label="支付时间"
@@ -102,9 +106,11 @@
                 label="操作"
             >
                 <template #default="scope">
-                    <el-button type="text" @click="handleDetail(scope.row)">
-                        详情
-                    </el-button>
+                    <button class="btn btn-secondary btn-sm"
+                        style="padding: 0 12px; height: 30px; display: inline-flex; align-items: center; gap: 4px; border-radius: 8px;"
+                        @click="handleDetail(scope.row)">
+                        管理详情
+                    </button>
                 </template>
             </el-table-column>
         </el-table>

@@ -35,10 +35,10 @@
                         v-model="params.roleIds"
                     >
                         <el-option
-                            v-for="item in options"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
+                            v-for="item in roleList"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id"
                         />
                     </el-select>
                 </div>
@@ -63,21 +63,13 @@
 import {
     createAdmin
 } from '@/service/admin';
-import { ref } from 'vue';
-const options = ref(
-    [
-        {
-            value: '0',
-            label: '超级管理员'
-        }, {
-            value: '1',
-            label: '审核专员'
-        }, {
-            value: '2',
-            label: '财务'
-        }
-    ]
-)
+import {
+    listRole
+} from '@/service/role';
+import { ref, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+const roleList = ref([]);
+
 const params = ref({
     username: '',
     password: '',
@@ -85,11 +77,38 @@ const params = ref({
     phone: ''
 })
 
+onMounted(() => {
+    getRoleList();
+})
+
+const getRoleList = () => {
+    const params = {
+        page: 1,
+        limit: 20,
+        name: undefined,
+        sort: 'add_time',
+        order: 'desc'
+    }
+    listRole(params).then(res => {
+        roleList.value = res.list;
+    })
+}
+
+const resetForm = () => {
+    params.value = {
+        username: '',
+        password: '',
+        roleIds: '',
+        phone: ''
+    }
+}
+
 const onAddAdmin = () => {
     let data = {...params.value, roleIds: [params.value.roleIds]};
     createAdmin(data)
         .then(res => {
-            console.log('res', res);
+            ElMessage.success('创建管理员成功');
+            router.go(-1);
         })
 }
     

@@ -62,6 +62,9 @@
           <h2 class="page-title">{{ route.meta.name }}</h2>
           <div class="page-breadcrumb">{{ route.meta.tag }}</div>
         </div>
+        <div class="header-right">
+          <button class="btn btn-primary" @click="onLogout">退出登录</button>
+        </div>
       </div>
       <div class="content">
         <router-view/>
@@ -72,9 +75,20 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { getToken, removeToken } from '@/utils/auth'
+import { logout } from '@service/login';
 
 const route = useRoute();
 const router = useRouter();
+
+const onLogout = () => {
+  logout(getToken()).then(() => {
+    removeToken();
+    router.replace('/login');
+  }).catch(error => {
+    reject(error)
+  })
+}
 
 
 </script>

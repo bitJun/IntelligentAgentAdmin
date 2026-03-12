@@ -34,8 +34,7 @@ service.interceptors.request.use(
 // response interceptor
 service.interceptors.response.use(
   (response) => {
-    const res = response.data
-    console.log('res12', res)
+    const res = response.data;
     let code;
     if (res.code) {
       code = res.code
@@ -60,7 +59,6 @@ service.interceptors.response.use(
       ElMessage.error('更新失败，请再尝试一次');
       return Promise.reject('error');
     } else if (code === 506) {
-      ElMessage.error('没有操作权限，请联系管理员授权');
       router.replace('/login');
       return Promise.reject('error')
     } else if (code !== 1) {
@@ -70,12 +68,6 @@ service.interceptors.response.use(
     }
   },
   (error) => {
-    console.log('err' + error)// for debug
-    // Message({
-    //   message: '登录连接超时（后台不能连接，请联系系统管理员）',
-    //   type: 'error',
-    //   duration: 5 * 1000
-    // })
     return Promise.reject(error)
   },
 )

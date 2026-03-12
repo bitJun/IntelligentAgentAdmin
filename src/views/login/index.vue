@@ -49,13 +49,11 @@ const handleLogin = () => {
             localStorage.setItem('token', res.token);
             setToken(res.token);
             getUserInfo(res.token).then(res => {
-                console.log('res', res);
                 store.setName(res.name);
-                store.setPerms(res.perms);
-                store.setRoles(res.roles);
+                store.setPerms(res.perms.join(','));
+                store.setRoles(res.roles[0]);
                 router.push('/');
-            })
-            
+            });
         })
         .catch(err => {
             console.log('err', err);

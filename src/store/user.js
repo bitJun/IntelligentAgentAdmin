@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 let name = localStorage.getItem('name') || '';
-let perms = localStorage.getItem('perms') || []
-let roles = localStorage.getItem('roles') || []
+let perms = localStorage.getItem('perms') || ''
+let roles = localStorage.getItem('roles') || ''
 export const useStore = defineStore('storeId', {
   // arrow function recommended for full type inference
   state: () => {
@@ -14,16 +14,16 @@ export const useStore = defineStore('storeId', {
   },
   actions: {
     setName(name) {
-        localStorage.setItem('name', name)
-        this.name = name
+      localStorage.setItem('name', name)
+      this.name = name
     },
     setPerms(perms) {
-        localStorage.setItem('perms', JSON.stringify(perms))
-        this.perms = perms
+      localStorage.setItem('perms', perms)
+      this.perms = perms
     },
     setRoles(roles) {
-        localStorage.setItem('roles', JSON.stringify(roles))
-        this.roles = roles
+      localStorage.setItem('roles', roles)
+      this.roles = roles
     }
   },
 })

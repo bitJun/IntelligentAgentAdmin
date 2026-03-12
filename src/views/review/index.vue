@@ -51,9 +51,16 @@
       </el-table-column>
     </el-table>
     <div class="pagination-container" v-if="total > 0">
-      <el-pagination v-model:current-page="params.pageNum" v-model:page-size="params.pageSize"
-        :page-sizes="[10, 20, 50]" size="default" :background="false" layout="total, sizes, prev, pager, next, jumper"
-        :total="total" @size-change="handleSizeChange" @current-change="handleCurrentChange" />
+      <el-pagination 
+        v-model:current-page="params.pageNum"
+        v-model:page-size="params.pageSize"
+        size="default"
+        :background="false" 
+        layout="total, prev, pager, next, jumper"
+        :total="total"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
     </div>
     <el-dialog title="" custom-class="modal-box" width="600px" v-model="show">
       <img

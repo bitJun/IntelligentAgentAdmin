@@ -118,10 +118,9 @@
             <el-pagination
                 v-model:current-page="pageNum"
                 v-model:page-size="pageSize"
-                :page-sizes="[10, 20, 50]"
                 size="default"
                 :background="false"
-                layout="total, sizes, prev, pager, next, jumper"
+                layout="total, prev, pager, next, jumper"
                 :total="total"
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
@@ -229,10 +228,13 @@ onMounted(()=>{
 }
 
 .filter-form {
-    display: grid;
-    grid-template-columns: 344px 208px 208px 1fr;
-    gap: 0 32px;
-    align-items: end;
+    // display: grid;
+    // grid-template-columns: 344px 208px 208px 1fr;
+    // gap: 0 32px;
+    // align-items: end;
+    display: flex;
+    align-items: flex-end;
+    gap: 32px
 }
 
 .filter-item {

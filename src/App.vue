@@ -11,6 +11,7 @@
           class="menu-item"
           :class="{ active: route.path === '/review' }"
           @click="router.push('/review')"
+          v-if="store.perms.includes('/platform/product/audit/list') || store.perms.includes('*')"
         >
           <span class="menu-icon">📦</span>
           <span>审核</span>
@@ -19,6 +20,7 @@
           class="menu-item"
           :class="{ active: route.path === '/material' }"
           @click="router.push('/material')"
+          v-if="store.perms.includes('/platform/business-card/list') || store.perms.includes('*')"
         >
           <span class="menu-icon">👤</span>
           <span>资料</span>
@@ -27,6 +29,7 @@
           class="menu-item"
           :class="{ active: route.path === '/merchant' }"
           @click="router.push('/merchant')"
+          v-if="store.perms.includes('/platform/merchant/list') || store.perms.includes('*')"
         >
           <span class="menu-icon">🏪</span>
           <span>商户</span>
@@ -35,6 +38,7 @@
           class="menu-item"
           :class="{ active: route.path === '/order' }"
           @click="router.push('/order')"
+          v-if="store.perms.includes('/platform/order/list') || store.perms.includes('*')"
         >
           <span class="menu-icon">💰</span>
           <span>订单</span>
@@ -43,16 +47,17 @@
           class="menu-item"
           :class="{ active: route.path === '/system' }"
           @click="router.push('/system')"
+          v-if="store.perms.includes('/admin/admin/list') || store.perms.includes('*')"
         >
           <span class="menu-icon">⚙️</span>
           <span>系统</span>
         </li>
       </ul>
       <div class="sidebar-bottom">
-        <div class="user-avatar">A</div>
+        <div class="user-avatar">{{store.name.charAt(0)}}</div>
         <div class="user-info-text">
-          <div class="user-name">Admin</div>
-          <div class="user-role">超级管理员</div>
+          <div class="user-name">{{store.name}}</div>
+          <div class="user-role">{{store.roles}}</div>
         </div>
       </div>
     </aside>
@@ -62,8 +67,15 @@
           <h2 class="page-title">{{ route.meta.name }}</h2>
           <div class="page-breadcrumb">{{ route.meta.tag }}</div>
         </div>
-        <div class="header-right">
+        <!-- <div class="header-right">
           <button class="btn btn-primary" @click="onLogout">退出登录</button>
+        </div> -->
+        <div class="header-user">
+          <div class="user-info" @click="onLogout">
+            <div class="user-avatar">{{store.name.charAt(0)}}</div>
+            <span id="userName">{{store.roles}}</span>
+            <span style="font-size: 12px; color: var(--text-tertiary); margin-left: 4px;">退出</span>
+          </div>
         </div>
       </div>
       <div class="content">
@@ -73,13 +85,16 @@
   </div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getToken, removeToken } from '@/utils/auth'
 import { logout } from '@service/login';
+import { useStore } from '@/store/user';
 
 const route = useRoute();
 const router = useRouter();
+const store = useStore();
+
 
 const onLogout = () => {
   logout(getToken()).then(() => {
@@ -269,5 +284,28 @@ const onLogout = () => {
   font-size: 12px;
   color: var(--text-tertiary);
   font-weight: 500;
+}
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+.user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--brand-gradient);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
 }
 </style>

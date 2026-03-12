@@ -47,7 +47,7 @@
                     <el-input
                         class="form-control"
                         id="adminPwd"
-                        placeholder="自动生成或手动设置"
+                        placeholder="请输入初始密码"
                         v-model="params.password"
                     />
                 </div>
@@ -105,6 +105,22 @@ const resetForm = () => {
 }
 
 const onAddAdmin = () => {
+    if (!params.value.username) {
+        ElMessage.error('请输入管理员姓名');
+        return;
+    }
+    if (!params.value.phone) {
+        ElMessage.error('请输入手机号');
+        return;
+    }
+    if (!params.value.roleIds) {
+        ElMessage.error('请选择系统角色');
+        return;
+    }
+    if (!params.value.password) {
+        ElMessage.error('请输入密码');
+        return;
+    }
     let data = {...params.value, roleIds: [params.value.roleIds]};
     createAdmin(data)
         .then(res => {

@@ -2,10 +2,12 @@
     <div class="card">
         <div class="card-header">
             <div class="profile-info" style="display:flex; align-items:center; gap:16px;">
-                <div class="user-avatar" id="adminInitial" style="width:48px; height:48px; font-size:20px;">A</div>
+                <div class="user-avatar" id="adminInitial" style="width:48px; height:48px; font-size:20px;">
+                    {{username.charAt(0)}}
+                </div>
                 <div>
-                    <h3 class="card-title" id="adminNameDisplay">Audit01</h3>
-                    <div class="text-desc" id="adminRoleDisplay">审核专员</div>
+                    <h3 class="card-title" id="adminNameDisplay">{{username}}</h3>
+                    <div class="text-desc" id="adminRoleDisplay">{{roleName}}</div>
                 </div>
             </div>
             <div class="card-actions">
@@ -27,6 +29,7 @@
                             <el-checkbox 
                                 v-model="productPermission"
                                 @change="onChangePermission('platform:product:list')"
+                                disabled
                             />
                             <span>商品上架审核</span>
                         </label>
@@ -129,6 +132,8 @@ import { ElMessage } from 'element-plus';
 const router = useRouter();
 const route = useRoute();
 const id = route.params.id;
+const roleName = route.query.roleName;
+const username = route.query.username;
 
 const aduitPermission = ref(false);
 const merchantPermission = ref(false);
@@ -208,19 +213,117 @@ const onSavePermissions = () => {
             ...(adminLogPermission.value ? ['admin:log:list'] : []),
         ]
     }
-    console.log('params', params);
+    if (params.permissions.includes('platform:order:list')) {
+        params.permissions.push('platform:order:detail');
+        params.permissions.push('platform:order:refund');
+        params.permissions.push('platform:order:getRefundOrderList');
+        params.permissions.push('platform:order:getRefundOrderDetail');
+    }
+    if (params.permissions.includes('platform:product:list')) {
+        params.permissions.push('platform:product:audit');
+        params.permissions.push('platform:product:getMerchantProductList');
+        params.permissions.push('platform:product:detail');
+    }
+    if (params.permissions.includes('platform:business-card:list')) {
+        params.permissions.push('platform:business-card:detail');
+        params.permissions.push('platform:business-card:audit');
+    }
+    if (params.permissions.includes('platform:merchant:list')) {
+        params.permissions.push('platform:merchant:batchAdd');
+        params.permissions.push('platform:merchant:getMerchantInfo');
+    }
+    if (params.permissions.includes('admin:admin:list')) {
+        params.permissions.push('admin:role:permission:update');
+        params.permissions.push('admin:role:permission:get');
+        params.permissions.push('admin:role:list');
+    }
     updatePermission(params).then(res => {
         ElMessage.success('保存成功');
         router.go(-1);
     })
 }
-
-watch(productPermission, (newVal) => {
-    console.log('newVal', newVal);
-})
 const onChangePermission = () => {
 
 }
+
+watch(aduitPermission, (newVal) => {
+    if (newVal) {
+        productPermission.value = true;
+        businessCardPermission.value = true;
+    }
+});
+
+watch(
+  [productPermission, businessCardPermission],
+  (newValues, oldValues) => {
+    const [newProductPermission, newBusinessCardPermission] = newValues;
+    if (newProductPermission && newBusinessCardPermission) {
+        aduitPermission.value = true;
+    } else {
+        aduitPermission.value = false;
+    }
+  }
+)
+
+watch(merchantPermission, (newVal) => {
+    if (newVal) {
+        merchantListPermission.value = true;
+        merchantStatusPermission.value = true;
+    }
+});
+
+watch(
+  [merchantListPermission, merchantStatusPermission],
+  (newValues, oldValues) => {
+    const [newMerchantListPermission, newMerchantStatusPermission] = newValues;
+    if (newMerchantListPermission && newMerchantStatusPermission) {
+        merchantPermission.value = true;
+    } else {
+        merchantPermission.value = false;
+    }
+  }
+)
+
+watch(orderPermission, (newVal) => {
+    if (newVal) {
+        orderListPermission.value = true;
+        orderStatusPermission.value = true;
+    }
+});
+
+watch(
+  [orderListPermission, orderStatusPermission],
+  (newValues, oldValues) => {
+    const [newOrderListPermission, newOrderStatusPermission] = newValues;
+    if (newOrderListPermission && newOrderStatusPermission) {
+        orderPermission.value = true;
+    } else {
+        orderPermission.value = false;
+    }
+  }
+)
+
+watch(systemPermission, (newVal) => {
+    if (newVal) {
+        adminListPermission.value = true;
+        adminLogPermission.value = true;
+    }
+});
+
+watch(
+  [adminListPermission, adminLogPermission],
+  (newValues, oldValues) => {
+    const [newAdminListPermission, newAdminLogPermission] = newValues;
+    if (newAdminListPermission && newAdminLogPermission) {
+        systemPermission.value = true;
+    } else {
+        systemPermission.value = false;
+    }
+  }
+)
+
+
+
 </script>
 <style scoped lang="scss">
 .card-header {

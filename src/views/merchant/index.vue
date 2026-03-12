@@ -1,7 +1,7 @@
 <template>
   <div class="filter-panel">
     <div class="filter-form">
-      <div class="filter-item">
+      <div class="filter-item" style="width: 180px;">
         <label>商户查询</label>
         <el-input v-model="keyword" type="text" placeholder="商户名/手机号/ID..." />
       </div>
@@ -59,19 +59,26 @@
             管理详情
           </button>
           <button class="btn btn-success-soft btn-sm" @click="handleChangeStatus(scope.row)"
-            v-if="scope.row.status == 1">
+            v-if="scope.row.status == 1 && store.perms.includes('/platform/merchant/updateStatus')">
             解冻
           </button>
-          <button class="btn btn-danger-soft btn-sm" @click="handleConfirmChangeStatus(scope.row)" v-else>
+          <button class="btn btn-danger-soft btn-sm" @click="handleConfirmChangeStatus(scope.row)" v-if="scope.row.status == 0 && store.perms.includes('/platform/merchant/updateStatus')">
             冻结
           </button>
         </template>
       </el-table-column>
     </el-table>
     <div class="pagination-container" v-if="total > 0">
-      <el-pagination v-model:current-page="params.pageNum" v-model:page-size="params.pageSize"
-        :page-sizes="[10, 20, 50]" size="default" :background="false" layout="total, sizes, prev, pager, next, jumper"
-        :total="total" @size-change="handleSizeChange" @current-change="handleCurrentChange" />
+      <el-pagination 
+        v-model:current-page="params.pageNum"
+        v-model:page-size="params.pageSize"
+        size="default"
+        :background="false"
+        layout="total, prev, pager, next, jumper"
+        :total="total"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
     </div>
     <el-dialog v-model="showAddMerchant" title="新增商户" width="520" align-center>
       <div class="form-group">
@@ -139,6 +146,8 @@ import {
   updateMerchantStatus,
   batchAddMerchant
 } from '@/service/merchant';
+import { useStore } from '@/store/user';
+const store = useStore();
 const router = useRouter();
 const params = ref({
   pageNum: 1,
@@ -498,10 +507,13 @@ const handleConfirmAdd = () => {
 }
 
 .filter-form {
-  display: grid;
-  grid-template-columns: 344px 208px 208px 1fr;
-  gap: 0 32px;
-  align-items: end;
+  // display: grid;
+  // grid-template-columns: 344px 208px 208px 1fr;
+  // gap: 0 32px;
+  // align-items: end;
+  display: flex;
+  align-items: flex-end;
+  gap: 32px
 }
 
 .filter-item {

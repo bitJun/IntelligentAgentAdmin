@@ -55,7 +55,7 @@
             />
         </div>
     </div>
-    <div class="card">
+    <div class="card" v-if="store.perms.includes('/admin/log/list')">
         <div class="card-header">
             <h3 class="card-title">全站操作审计日志 (Audit Log)</h3>
         </div>
@@ -97,6 +97,8 @@ import { listLog } from '@/service/log';
 import {
     listRole
 } from '@/service/role';
+import { useStore } from '@/store/user';
+const store = useStore();
 const router = useRouter();
 const params = ref({
     pageNum: 1,
@@ -186,13 +188,19 @@ const onLoadLogList = () => {
 const handlePermission = (row) => {
     router.push({
         path: `/system/permission/${row.id}`,
+        query: {
+            roleName: roleInfo.value[row.roleIds[0]],
+            username: row.username,
+        }
     })
 }
 
 onMounted(() => {
     getRoleList();
     onLoadData();
-    onLoadLogList();
+    if (store.perms.includes('/admin/log/list')) {
+        onLoadLogList();
+    }
 });
 
 </script>

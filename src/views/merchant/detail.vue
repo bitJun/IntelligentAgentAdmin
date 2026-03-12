@@ -20,11 +20,11 @@
       </div>
       <div class="header-right">
         <!-- <el-button size="small" class="cancelBtn">重置密码</el-button> -->
-        <button class="btn btn-danger-soft btn-sm" v-if="detail.status === 0"
+        <button class="btn btn-danger-soft btn-sm" v-if="detail.status === 0 && store.perms.includes('/platform/merchant/updateStatus')"
           @click="show = true">
           冻结账号
         </button>
-        <button class="btn btn-success-soft btn-sm" v-if="detail.status === 1"
+        <button class="btn btn-success-soft btn-sm" v-if="detail.status === 1 && store.perms.includes('/platform/merchant/updateStatus')"
           @click="handleChangeStatus(detail)">
           解冻账号
         </button>
@@ -163,6 +163,8 @@ import {
   queryMerchantInfo,
   queryMerchantProductList
 } from '@/service/merchant';
+import { useStore } from '@/store/user';
+const store = useStore();
 
 const route = useRoute();
 const router = useRouter();

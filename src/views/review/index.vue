@@ -24,7 +24,7 @@
       </el-table-column>
       <el-table-column prop="imgUrl" label="商品图片">
         <template #default="scope">
-          <img :src="scope.row.imgUrl" width="40">
+          <img :src="scope.row.imgUrl" width="40" @click="onPreviewImg(scope.row.imgUrl)" style="cursor: pointer;">
         </template>
       </el-table-column>
       <el-table-column prop="description" label="商品描述">
@@ -55,6 +55,13 @@
         :page-sizes="[10, 20, 50]" size="default" :background="false" layout="total, sizes, prev, pager, next, jumper"
         :total="total" @size-change="handleSizeChange" @current-change="handleCurrentChange" />
     </div>
+    <el-dialog title="" custom-class="modal-box" width="600px" v-model="show">
+      <img
+        :src="img"
+        width="100%"
+        height="100%"
+      />
+    </el-dialog>
     <el-dialog title="商品上架复核" custom-class="modal-box" width="600px" v-model="drawer">
       <div class="ai-result aiPass">
         <div class="ai-left">
@@ -90,7 +97,25 @@
         <div class="info-item">
           <div class="info-label">主图预览</div>
           <div class="preview-box">
-            <img :src="detail.imgUrl" class="img" />
+            <img :src="detail.imgUrl" class="img" style="cursor: pointer;" @click="onPreviewImg(detail.imgUrl)"/>
+          </div>
+        </div>
+        <div class="info-item" v-if="detailImgs.length > 0">
+          <div class="info-label">商品详细图片</div>
+          <div 
+            class="desc-box"
+            style="display:flex; gap:12px; overflow-x:auto; background:var(--bg-app); width:100%; border:1px solid var(--border-color); border-radius: 8px; padding: 12px;"
+          >
+              <!-- <div style="width: 80px; height: 80px;">
+                详图 1</div> -->
+            <img
+              v-for="img in detailImgs"
+              :src="img"
+              width="80"
+              height="80"
+              style="cursor: pointer;"
+              @click="onPreviewImg(img)"
+            />
           </div>
         </div>
       </div>
@@ -101,14 +126,14 @@
         <el-input type="textarea" :rows="3" placeholder="请输入审核意见" v-model="auditRemarks" />
       </div>
       <div slot="footer" class="dialog-footer" v-if="detail.auditStatus === 0" style="display: flex;justify-content: flex-end; border-top: 1px solid var(--border-color); padding: 20px;">
-        <button class="btn btn-secondary btn-sm">关闭</button>
+        <button class="btn btn-secondary btn-sm" @click="onHandleColse()">关闭</button>
         <div>
           <el-button type="danger" class="dangerBtn" @click="handleAudit(2)">驳回上架</el-button>
           <el-button type="primary" class="submitBtn" @click="handleAudit(1)">确认通过</el-button>
         </div>
       </div>
       <div v-else slot="footer" class="dialog-footer" style="display: flex;justify-content: flex-end; border-top: 1px solid var(--border-color); padding: 20px;">
-        <button class="btn btn-secondary btn-sm">关闭</button>
+        <button class="btn btn-secondary btn-sm" @click="onHandleColse()">关闭</button>
       </div>
     </el-dialog>
   </div>
@@ -130,9 +155,12 @@ const auditStatus = ref('');
 const total = ref(0);
 const list = ref([]);
 const drawer = ref(false);
+const show = ref(false);
 const detail = ref({});
 const auditRemarks = ref('');
+const img = ref('');
 const isSubmit = ref(false);
+const detailImgs = ref([]);
 
 const headerCellStyle = {
   background: '#f3f6fb',
@@ -145,6 +173,11 @@ onMounted(() => {
   document.title = '商品审核 | 平台管理后台';
   onLoadData();
 });
+
+const onPreviewImg = (url) => {
+  img.value = url;
+  show.value = true;
+}
 
 const onLoadData = () => {
   let data = params.value;
@@ -164,6 +197,7 @@ const handleDetail = (row) => {
       console.log('response123', res);
       drawer.value = true;
       detail.value = res;
+      detailImgs.value = JSON.parse(res.detailImgs);
     });
 }
 
@@ -181,6 +215,13 @@ const handleCurrentChange = (val) => {
 const handleTabChange = (key) => {
   params.value.processed = key;
   onLoadData();
+}
+
+const onHandleColse = () => {
+  drawer.value = false;
+  detail.value = {};
+  detailImgs.value = [];
+  auditRemarks.value = '';
 }
 </script>
 
@@ -378,5 +419,10 @@ const handleTabChange = (key) => {
 .img {
   height: 200px;
   width: auto;
+}
+
+:deep(.el-dialog) {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  border-radius: 24px;
 }
 </style>

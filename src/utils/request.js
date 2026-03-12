@@ -8,6 +8,7 @@ axios.defaults.withCredentials = true
 // create an axios instance
 const service = axios.create({
   // 走 vite 代理，避免本地开发时跨域
+  // baseURL: window.location.port == 3000 ? '/api' : 'https://dev.wxapi.pangniu.pangguimi.com/admin_dev',
   baseURL: '/api',
   timeout: 15000, // request timeout
 })

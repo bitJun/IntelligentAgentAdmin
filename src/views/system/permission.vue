@@ -122,7 +122,7 @@
     </div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { getPermission, updatePermission } from '@/service/role';
 import { ElMessage } from 'element-plus';
@@ -215,6 +215,9 @@ const onSavePermissions = () => {
     })
 }
 
+watch(productPermission, (newVal) => {
+    console.log('newVal', newVal);
+})
 const onChangePermission = () => {
 
 }

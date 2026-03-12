@@ -68,8 +68,9 @@ import {
 } from '@/service/role';
 import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
+import { useRouter } from 'vue-router';
 const roleList = ref([]);
-
+const router = useRouter();
 const params = ref({
     username: '',
     password: '',

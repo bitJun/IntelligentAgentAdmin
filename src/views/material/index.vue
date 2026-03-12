@@ -9,25 +9,11 @@
     <div class="card-header">
       <h3 class="card-title">{{ params.processed === 0 ? '待审核资料队列' : '已审核资料队列' }}</h3>
     </div>
-    <el-table 
-      :data="list"
-      class="audit-table"
-      row-key="id"
-      :header-cell-style="headerCellStyle"
-    >
-      <el-table-column
-        prop="submitTime"
-        label="提交时间"
-      ></el-table-column>
-      <el-table-column
-        prop="name"
-        label="商户名称"
-      >
+    <el-table :data="list" class="audit-table" row-key="id" :header-cell-style="headerCellStyle">
+      <el-table-column prop="submitTime" label="提交时间"></el-table-column>
+      <el-table-column prop="name" label="商户名称">
       </el-table-column>
-      <el-table-column
-        prop="modifyType"
-        label="修改类型"
-      >
+      <el-table-column prop="modifyType" label="修改类型">
         <template #default="scope">
           <el-tag type="success" v-if="scope.row.modifyType === 0">名称</el-tag>
           <el-tag type="danger" v-if="scope.row.modifyType === 1">头像</el-tag>
@@ -43,19 +29,13 @@
           </el-button>
       </template>
       </el-table-column> -->
-      <el-table-column
-        prop="aiResult"
-        label="AI预审"
-      >
+      <el-table-column prop="aiResult" label="AI预审">
         <template #default="scope">
           <el-tag type="success" v-if="scope.row.aiResult === 0">低风险</el-tag>
           <el-tag type="danger" v-if="scope.row.aiResult === 1">疑似</el-tag>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="status"
-        label="状态"
-      >
+      <el-table-column prop="status" label="状态">
         <template #default="scope">
           <el-tag type="warning" v-if="scope.row.status === 0">待人工审核</el-tag>
           <el-tag type="success" v-if="scope.row.status === 1">系统已通过</el-tag>
@@ -63,29 +43,18 @@
           <el-tag type="success" v-if="scope.row.status === 4">人工已通过</el-tag>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="address"
-        label="操作"
-      >
+      <el-table-column prop="address" label="操作">
         <template #default="scope">
           <el-button type="text" @click="handleDetail(scope.row)">
-          详情
+            详情
           </el-button>
         </template>
       </el-table-column>
     </el-table>
     <div class="pagination-container" v-if="total > 0">
-      <el-pagination
-        v-model:current-page="params.pageNum"
-        v-model:page-size="params.pageSize"
-        :page-sizes="[10, 20, 50]"
-        size="default"
-        :background="false"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
+      <el-pagination v-model:current-page="params.pageNum" v-model:page-size="params.pageSize"
+        :page-sizes="[10, 20, 50]" size="default" :background="false" layout="total, sizes, prev, pager, next, jumper"
+        :total="total" @size-change="handleSizeChange" @current-change="handleCurrentChange" />
     </div>
     <el-dialog title="商品上架复核" custom-class="modal-box" width="600px" v-model="drawer">
       <div class="ai-result aiPass">
@@ -122,10 +91,7 @@
         <div class="info-item">
           <div class="info-label">主图预览</div>
           <div class="preview-box">
-            <img
-              :src="detail.imgUrl"
-              class="img"
-            />
+            <img :src="detail.imgUrl" class="img" />
           </div>
         </div>
       </div>
@@ -133,12 +99,7 @@
       <!-- 审核意见 -->
       <div class="opinion-item">
         <div class="info-label">审核意见批注</div>
-        <el-input
-          type="textarea"
-          :rows="3"
-          placeholder="请输入审核意见"
-          v-model="auditRemarks"
-        />
+        <el-input type="textarea" :rows="3" placeholder="请输入审核意见" v-model="auditRemarks" />
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button class="cancelBtn" @click="handleClose">取消</el-button>
@@ -177,7 +138,7 @@ const headerCellStyle = {
   height: '50px',
 }
 
-onMounted(()=>{
+onMounted(() => {
   document.title = '名片审核 | 平台管理后台';
   onLoadData();
 });
@@ -214,8 +175,8 @@ const handleClose = () => {
 }
 
 const handleDetail = (row) => {
-  queryMaterialDetail({id: row.id})
-    .then(res=>{
+  queryMaterialDetail({ id: row.id })
+    .then(res => {
       detail.valie = res;
       drawer.valie = true;
     })
@@ -237,12 +198,12 @@ const handleAudit = (key) => {
   }
   isSubmit.value = true;
   auditMaterial(params, self.detail.id)
-    .then(res=>{
+    .then(res => {
       handleClose();
       onLoadData();
       isSubmit.value = false;
     })
-    .catch(err=>{
+    .catch(err => {
       isSubmit.value = false;
     })
 }
@@ -252,7 +213,7 @@ const handleTabChange = (key) => {
   onLoadData();
 }
 </script>
-  
+
 <style scoped lang="scss">
 .review-page {
   width: 100%;
@@ -306,6 +267,7 @@ const handleTabChange = (key) => {
   color: #2d3a52;
   font-weight: 600;
 }
+
 .ai-result {
   margin: 20px;
   padding: 16px 20px;
@@ -416,30 +378,40 @@ const handleTabChange = (key) => {
   padding: 16px 20px;
   border-top: 1px solid #ebeef5;
 }
+
 .cancelBtn {
   background: #f1f5f9;
   color: #1e293b;
   border: 1.5px solid #eef2f6;
   border-radius: 15px;
 }
+
 .submitBtn {
   box-shadow: rgba(59, 130, 246, 0.25) 0px 4.0077px 12.0308px 0px;
   background: linear-gradient(135deg, #3b82f6, #10b981);
   border-radius: 15px;
 }
+
 .dangerBtn {
   background: rgba(239, 68, 68, 0.08);
   color: #dc2626;
-  background: rgba(239,68,68,0.08);
+  background: rgba(239, 68, 68, 0.08);
   border-radius: 15px;
 }
+
 .dialog-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
 .img {
-    height: 200px;
-    width: auto;
+  height: 200px;
+  width: auto;
+}
+
+:deep(.el-dialog) {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  border-radius: 24px;
 }
 </style>
